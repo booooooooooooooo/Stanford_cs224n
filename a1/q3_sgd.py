@@ -18,6 +18,7 @@ def load_saved_params():
     st = 0
     for f in glob.glob("saved_params_*.npy"):
         iter = int(op.splitext(op.basename(f))[0].split("_")[2])
+
         if (iter > st):
             st = iter
 
@@ -85,7 +86,10 @@ def sgd(f, x0, step, iterations, postprocessing=None, useSaved=False,
 
         cost = None
         ### YOUR CODE HERE
-        raise NotImplementedError
+        cost, grad = f(x)
+        x -= grad * step
+        x = postprocessing(x)
+
         ### END YOUR CODE
 
         if iter % PRINT_EVERY == 0:
@@ -138,4 +142,4 @@ def your_sanity_checks():
 
 if __name__ == "__main__":
     sanity_check()
-    your_sanity_checks()
+    # your_sanity_checks()
