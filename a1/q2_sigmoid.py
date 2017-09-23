@@ -15,13 +15,14 @@ def sigmoid(x):
     """
 
     ### YOUR CODE HERE
-    if isinstance(x, np.ndarray):
-        s = x.astype(float)
-        s = np.exp(-s)
-        s += 1
-        s = 1 / s
-    else:
-        s = 1 / (np.exp(-x) + 1)
+    # if isinstance(x, np.ndarray):
+    #     s = x.astype(float)
+    #     s = np.exp(-s)
+    #     s += 1
+    #     s = 1 / s
+    # else:
+    #     s = 1 / (np.exp(-x) + 1)
+    s = 1 / (1 + np.exp(-x))
     ### END YOUR CODE
 
     return s
@@ -41,7 +42,7 @@ def sigmoid_grad(s):
     """
 
     ### YOUR CODE HERE
-    return s * (1 - s)
+    ds =  s * (1 - s)
     ### END YOUR CODE
 
     return ds

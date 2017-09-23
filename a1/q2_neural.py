@@ -47,15 +47,11 @@ def forward_backward_prop(data, labels, params, dimensions):
     ### YOUR CODE HERE: backward propagation
     gradz2 =  y - labels
     gradW2 =  h.T.dot(gradz2)
-    # gradb2 = gradz2
-    gradb2 = np.sum(gradz2,axis=0)#Q: why not the commentted out one?
-    # print gradz2.shape
-    # print gradb2.shape
+    gradb2 = np.sum(gradz2,axis=0)
     gradh = gradz2.dot(W2.T)
     gradz1 = gradh * h * (1-h)
     gradW1 = data.T.dot(gradz1)
-    # gradb1 = gradz1
-    gradb1 = np.sum(gradz1,axis=0) #Q: why not the commentted out one?
+    gradb1 = np.sum(gradz1,axis=0)
 
     ### END YOUR CODE
 

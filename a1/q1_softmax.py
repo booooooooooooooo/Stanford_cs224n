@@ -31,25 +31,18 @@ def softmax(x):
         # Matrix
         ### YOUR CODE HERE
         x = x.astype(float)
-        for i in xrange(x.shape[0]):
-
-            x[i,:] -= np.max(x[i,:])
-
-            x[i,:] = np.exp(x[i,:])
-
-            deno = np.sum(x[i, :])
-            x[i,:] /= deno
-
+        rowMax = np.max(x, axis = 1)
+        x -= rowMax.reshape(x.shape[0], 1)
+        x = np.exp(x)
+        deno = np.sum(x, axis = 1)
+        x /= deno.reshape(x.shape[0], 1)
         ### END YOUR CODE
     else:
         # Vector
         ### YOUR CODE HERE
         x = x.astype(float)
-
         x -= np.max(x)
-
         x = np.exp(x)
-
         deno = np.sum(x)
         x /= deno
 

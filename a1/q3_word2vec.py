@@ -15,10 +15,14 @@ def normalizeRows(x):
     """
 
     ### YOUR CODE HERE
-    for i in xrange(x.shape[0]):
-        deno = np.sum(x[i,:] * x[i,:])
-        deno = np.sqrt(deno)
-        x[i,:] /= deno
+    # for i in xrange(x.shape[0]):
+    #     deno = np.sum(x[i,:] * x[i,:])
+    #     deno = np.sqrt(deno)
+    #     x[i,:] /= deno
+    sqr = np.square(x)
+    rowSum = np.sum(sqr, axis = 1)
+    rowSumRoot = np.sqrt(rowSum)
+    x = x / rowSumRoot.reshape(rowSumRoot.shape[0], 1)
     ### END YOUR CODE
 
     return x
@@ -67,16 +71,15 @@ def softmaxCostAndGradient(predicted, target, outputVectors, dataset):
     v = outputVectors.shape[0]
     m = outputVectors.shape[1]
 
-    temp = outputVectors.dot(predicted).T
-    yHat = softmax(temp).reshape(v, 1)
+    yHat = softmax(predicted.dot(outputVectors.T) )
 
-    y = np.zeros([v,1])
+    y = np.zeros(yHat.shape)
     y[target] = 1
 
 
-    cost = - np.log(yHat[target, 0])
-    gradPred = outputVectors.T.dot(yHat - y)
-    grad = (yHat - y).dot(predicted.reshape(1, predicted.shape[0]))
+    cost = - np.log(yHat[target])
+    gradPred = (yHat - y).dot(outputVectors)
+    grad = ((yHat - y).reshape(v,1)).dot(predicted.reshape(1, m))
 
 
     ### END YOUR CODE
@@ -170,14 +173,14 @@ def skipgram(currentWord, C, contextWords, tokens, inputVectors, outputVectors,
     #inputVectors V * m
     #outputVectors V * m
     #softmaxCostAndGradient(predicted, target, outputVectors, dataset)
-    v, m = inputVectors.shape
-    predicted = inputVectors[tokens[currentWord], :].reshape(m, 1)
+
+
     for word in contextWords:
-        target = tokens[word]
-        cost, gradPred, grad = softmaxCostAndGradient(predicted, target, outputVectors, dataset)
-        cost += cost
-        gradIn[tokens[currentWord], :] = gradIn[tokens[currentWord], :] + gradPred.reshape(1, m)
-        gradOut += grad
+        dcost, dgradIn, dgradOut = word2vecCostAndGradient(inputVectors[tokens[currentWord], :], tokens[word], outputVectors, dataset)
+        cost += dcost
+        gradIn[tokens[currentWord], :] += dgradIn
+        gradOut += dgradOut
+
     ### END YOUR CODE
 
     return cost, gradIn, gradOut
@@ -206,12 +209,12 @@ def cbow(currentWord, C, contextWords, tokens, inputVectors, outputVectors,
     for word in contextWords:
         predicted += inputVectors[tokens[word], :].T.reshape(m, 1)
     target = tokens[currentWord]
-    cost, gradPred, grad = softmaxCostAndGradient(predicted, target, outputVectors, dataset)
+    dcost, dgradIn, dgradOut = softmaxCostAndGradient(predicted, target, outputVectors, dataset)
 
-    cost += cost
+    cost += dcost
     for word in contextWords:
-        gradIn[tokens[word], :] = gradIn[tokens[word], :] + gradPred.reshape(1, m)
-    gradOut += grad
+        gradIn[tokens[word], :] = gradIn[tokens[word], :] + dgradIn.reshape(1, m)
+    gradOut += dgradOut
     ### END YOUR CODE
 
     return cost, gradIn, gradOut
@@ -232,7 +235,7 @@ def word2vec_sgd_wrapper(word2vecModel, tokens, wordVectors, dataset, C,
     for i in xrange(batchsize):
         C1 = random.randint(1,C)
         centerword, context = dataset.getRandomContext(C1)
-
+        # print centerword
         if word2vecModel == skipgram:
             denom = 1
         else:
@@ -244,7 +247,6 @@ def word2vec_sgd_wrapper(word2vecModel, tokens, wordVectors, dataset, C,
         cost += c / batchsize / denom
         grad[:N/2, :] += gin / batchsize / denom
         grad[N/2:, :] += gout / batchsize / denom
-
     return cost, grad
 
 
@@ -280,7 +282,7 @@ def test_word2vec():
     #     cbow, dummy_tokens, vec, dataset, 5, negSamplingCostAndGradient),
     #     dummy_vectors)
     #
-    # print "\n=== Results ==="
+    print "\n=== Results ==="
     # print skipgram("c", 3, ["a", "b", "e", "d", "b", "c"],
     #     dummy_tokens, dummy_vectors[:5,:], dummy_vectors[5:,:], dataset)
     # print skipgram("c", 1, ["a", "b"],
