@@ -36,7 +36,7 @@ def forward_backward_prop(data, labels, params, dimensions):
     b2 = np.reshape(params[ofs:ofs + Dy], (1, Dy))
 
     ### YOUR CODE HERE: forward propagation
-    z1 = data.dot(W1) + b1
+    z1 = data.dot(W1) + b1 # Note: b1 is broadcasted here
     h = sigmoid(z1)
     z2 = h.dot(W2) + b2
     y = softmax(z2)
@@ -46,7 +46,7 @@ def forward_backward_prop(data, labels, params, dimensions):
 
     ### YOUR CODE HERE: backward propagation
     gradz2 =  y - labels
-    gradW2 =  h.T.dot(gradz2)
+    gradW2 =  h.T.dot(gradz2)# Note: sum of derivatives on each training data is done in matrix multiplication
     gradb2 = np.sum(gradz2,axis=0)
     gradh = gradz2.dot(W2.T)
     gradz1 = gradh * h * (1-h)

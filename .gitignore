@@ -1,0 +1,7 @@
+*.pyc
+.DS_Store
+output
+data/
+utils/
+.env/
+test.py
